@@ -16,7 +16,7 @@ publish, edit, and reproduce stories.
 ## Install (Claude Code)
 
 ```bash
-git clone https://github.com/Yahhi/worklore-skill
+git clone https://github.com/worklore/worklore-skill
 cp -r worklore-skill/skills/worklore ~/.claude/skills/
 ```
 
@@ -28,7 +28,7 @@ registration happens in the flow, later, in ~30 seconds.
 Codex reads `AGENTS.md`. Append the skill to your global one (or a project's):
 
 ```bash
-git clone https://github.com/Yahhi/worklore-skill
+git clone https://github.com/worklore/worklore-skill
 cat worklore-skill/skills/worklore/SKILL.md >> ~/.codex/AGENTS.md
 ```
 
