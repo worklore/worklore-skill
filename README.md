@@ -23,8 +23,23 @@ cp -r worklore-skill/skills/worklore ~/.claude/skills/
 Restart Claude Code (or open a new session). That's it — no account needed yet;
 registration happens in the flow, later, in ~30 seconds.
 
-Other agents: the skill is a standard `SKILL.md` — install it however your tool
-consumes skills, or just paste its contents into your agent's instructions.
+## Install (Codex)
+
+Codex reads `AGENTS.md`. Append the skill to your global one (or a project's):
+
+```bash
+git clone https://github.com/Yahhi/worklore-skill
+cat worklore-skill/skills/worklore/SKILL.md >> ~/.codex/AGENTS.md
+```
+
+Everything in the skill is plain instructions + `curl` — no Claude-specific
+tooling. "worklore, write this up" works the same.
+
+## Install (Cursor, aider, anything else)
+
+The skill is a standard `SKILL.md`: install it however your tool consumes
+skills, or paste its contents into your agent's instructions/rules file. The
+only requirements are shell access and the ability to fetch URLs.
 
 ## How to start sharing stories with your agent
 
