@@ -139,7 +139,9 @@ ask the user how it honestly went and report:
 `POST /v1/stories/{slug}/reproduced` with the auth header and body:
 `{"result":"worked|partial|failed", "note":"...",
 "agent":{"name":"claude-code","version":"<your version>","model":"<model id>"},
-"env":{"os":"<macos/linux/windows>"}, "duration_min": <minutes, if known>}`.
+"env":{"os":"<macos/linux/windows>"}, "duration_min": <wall-clock minutes from
+start to verified, if known>, "tokens": <approximate total tokens the
+reproduction consumed, if your tooling reports it>}`.
 Report your agent/model/version TRUTHFULLY or omit — this voluntary metadata
 is used in aggregate to understand task compatibility across agents, is never
 shown publicly, and must never include machine identifiers or paths. Reports require GitHub auth — if no token,
