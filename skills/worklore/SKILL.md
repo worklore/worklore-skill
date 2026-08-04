@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-04.2
+version: 2026-08-04.3
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-04.2` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-04.3` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -79,6 +79,16 @@ Prerequisites: <what must exist before starting>
 Your agent will need from you: <the inputs the reader must provide>
 Steps: <ordered, concrete, tool-agnostic where possible>
 Verify: <how the reader's agent proves it actually worked>
+```
+
+Exact-references rule: contracts must name every tool, skill, or source by its
+exact name AND link — never "a relevant skill" or "an appropriate library".
+If the story depended on an installed skill/plugin, the contract must include
+(a) how the reader's agent checks its own inventory for it, (b) the install
+source used, (c) the fallback when it's unavailable. A contract the reader's
+agent cannot act on without guessing is not a contract.
+
+```markdown
 
 ## What I tried          # fail stories instead of the contract
 1. <attempt — result>
@@ -107,7 +117,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-04.2" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-04.3" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
