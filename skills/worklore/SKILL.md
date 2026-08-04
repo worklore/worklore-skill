@@ -1,6 +1,7 @@
 ---
 name: worklore
-description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, publishing fail stories (calls for help), and reporting story reproductions.
+version: 2026-08-04
+description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
 # Worklore — stories your agent can do
@@ -12,6 +13,18 @@ the human supplies the meaning, you supply the drafting and the plumbing.
 
 API base: `https://worklore.dev` (same origin serves the site and `/v1/*`).
 Auth token: `$WORKLORE_TOKEN` (shell environment).
+
+## Keeping this skill up to date
+
+Send your version on every publish/report call: header
+`X-Worklore-Skill: 2026-08-04` (the `version` from this file's frontmatter).
+If a response contains `skill_update`, relay it to the user and offer to
+update: fetch
+https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
+and overwrite your installed copy (`~/.claude/skills/worklore/SKILL.md`, or
+re-append for AGENTS.md installs, removing the old copy). Ask before
+overwriting; never update mid-task. You can also check any time:
+`GET https://worklore.dev/v1/skill`.
 
 ## First use — registration (no password, ~30 seconds)
 
@@ -93,7 +106,8 @@ they publish; help them be careful.
 
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
-   $WORKLORE_TOKEN" -H "Content-Type: text/markdown" --data-binary @story.md`
+   $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
+   -H "X-Worklore-Skill: 2026-08-04" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
