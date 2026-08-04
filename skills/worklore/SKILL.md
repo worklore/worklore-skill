@@ -25,6 +25,19 @@ If `$WORKLORE_TOKEN` is empty when publishing/editing/reporting:
 4. Persist it for non-interactive shells (`~/.zshenv` on zsh, `~/.profile` on
    bash): `export WORKLORE_TOKEN="<token>"`. Never print the token.
 
+## When the user doesn't know what to share ("what should I post?")
+
+The blank page is the biggest barrier — solve it FOR them. Scan their work for
+story candidates: recent git log across the project (commit messages that smell
+of struggle-then-victory), spec/design docs, the current session, TODO/notes
+files. Rank by the formula that makes a good worklore story:
+**several failed attempts + undocumented behavior discovered + reproducible
+outcome**. Present a shortlist of 3–5 with a one-line pitch each, strongest
+first; list weak fail-story candidates separately (note: "not started yet" is
+not a fail story — "stuck after real attempts" is). Let the user pick, then
+draft. Do this proactively whenever the user wants to publish but hesitates
+about the topic.
+
 ## Writing a story ("write this up")
 
 Source material: the current session — what was actually attempted, what
