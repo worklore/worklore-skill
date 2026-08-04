@@ -77,6 +77,14 @@ Title rule (this is the SEO engine): name the tech + outcome —
 "Universal deep links in Flutter with a custom domain", never "My deep-link
 adventure". Fail stories phrase the problem: "Agent can't X after N attempts".
 
+Plain-words rule: the narrative must be understandable by a developer from a
+DIFFERENT stack — jargon belongs in the contract, not the story. When the
+topic is dense (agent internals, protocol details, domain-specific tooling),
+open the narrative with 2–3 sentences in plain words: what everyday situation
+this is, why it bites, what the fix feels like. Draft it, show the author,
+keep their voice. A story only a specialist can read loses the readers who
+would have become its reproducers.
+
 SANITIZE, always: no employer internals, no client names, no secrets or keys,
 no private URLs. When in doubt, generalize. The user is responsible for what
 they publish; help them be careful.
@@ -96,6 +104,16 @@ Fetch `https://worklore.dev/s/{slug}.md`, apply the user's rephrasing (keep
 frontmatter; the slug/URL never changes), show a before/after diff, get
 approval, then `PUT /v1/stories/{slug}` with the same auth. The site shows a
 "revised" date — honesty over polish; reproduction counts persist.
+
+## Hiding a story ("hide my story", "withdraw my story")
+
+If the author decides a published story needs more investigation or turned out
+incorrect: `POST /v1/stories/{slug}/visibility` with `{"hidden": true}` and
+their auth header. The page becomes an honest tombstone (title + "withdrawn by
+author"), the raw .md returns 410, and it leaves the feed — links never rot,
+nothing is quietly deleted. `{"hidden": false}` restores it fully. Confirm
+with the user before hiding; suggest a revision as the alternative when the
+story is fixable.
 
 ## Reproducing someone's story
 
