@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-04
+version: 2026-08-04.2
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-04` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-04.2` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -107,7 +107,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-04" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-04.2" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -136,8 +136,13 @@ THE USER FIRST (worklore's rule: you can read everything your agent reads),
 collect the inputs listed under "your agent will need from you", apply the
 steps to their project, run the Verify section before declaring success. Then
 ask the user how it honestly went and report:
-`POST /v1/stories/{slug}/reproduced` with `{"result":"worked|partial|failed",
-"note":"..."}` and the auth header. Reports require GitHub auth — if no token,
+`POST /v1/stories/{slug}/reproduced` with the auth header and body:
+`{"result":"worked|partial|failed", "note":"...",
+"agent":{"name":"claude-code","version":"<your version>","model":"<model id>"},
+"env":{"os":"<macos/linux/windows>"}, "duration_min": <minutes, if known>}`.
+Report your agent/model/version TRUTHFULLY or omit — this voluntary metadata
+is used in aggregate to understand task compatibility across agents, is never
+shown publicly, and must never include machine identifiers or paths. Reports require GitHub auth — if no token,
 run First Use above. "Failed" is a useful report; never inflate.
 
 ## Answering an open fail story
