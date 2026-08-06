@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-04.3
+version: 2026-08-06.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-04.3` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-06.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -66,13 +66,19 @@ tags: <3-6 lowercase kebab tags>
 type: success | fail
 status: n/a | open          # fail stories: open = asking for help
 reproducible: true | false
+image: <optional — URL of the card thumbnail. Set it to the RESULT the
+  story is about (the finished asset, the final screenshot), NOT a process
+  shot. Without it, the first image embedded in the narrative is used.>
+image_alt: <alt text for that image, required when image is set>
 ---
 
 # <same title>
 
 <Narrative, 150–400 words, first person, honest: context → what was tried →
 friction → outcome. Failed attempts are content, not shame. Optionally embed
-one image: ![caption](https://...) on its own line.>
+one image: ![caption](https://...) on its own line. If the narrative embeds
+process images (attempts, before-shots), set frontmatter `image:` to the
+final result so the feed card shows the outcome, not the first try.>
 
 ## Reproduce this        # success stories
 Prerequisites: <what must exist before starting>
@@ -117,7 +123,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-04.3" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-06.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
