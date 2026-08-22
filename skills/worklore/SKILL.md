@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-06.1
+version: 2026-08-21.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-06.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-21.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -60,7 +60,7 @@ Story format (markdown with frontmatter):
 
 ```markdown
 ---
-title: <names the tech and the outcome, phrased like a search query>
+title: <the true subject in plain words + the specific outcome — see the Title section below; offer the author a few options>
 date: <the USER'S local calendar date of the work — run `date +%F`, never UTC>
 tags: <3-6 lowercase kebab tags>
 type: success | fail
@@ -102,9 +102,31 @@ agent cannot act on without guessing is not a contract.
 <the specific question; a definite "no" is a useful answer>
 ```
 
-Title rule (this is the SEO engine): name the tech + outcome —
-"Universal deep links in Flutter with a custom domain", never "My deep-link
-adventure". Fail stories phrase the problem: "Agent can't X after N attempts".
+Title — the SEO engine AND the click. The title decides both whether the story
+is found (search) and whether a human scanning the feed opens it. Give it a real
+pass; never ship the first phrasing by default.
+
+- **Offer the author a choice — don't hand them one title.** After the draft is
+  agreed, propose 3–5 candidates, ranked best first, ranging from
+  concrete/searchable to catchy/curiosity-gap, each ≤ ~12 words. Let the author
+  pick or blend. Solving the blank title is worth the same effort as solving the
+  blank page — a weak title buries a strong story.
+- **Name the true subject in plain words, not the jargon for it.** What is this
+  *actually* about? "the rule for who can touch a private task", not
+  "authorization"; "making a page reachable from Russia", not "geo-failover".
+  The precise technical term goes in the tags, where search still finds it — the
+  title names the thing a human recognizes.
+- **Concrete and specific out-clicks abstract and broad.** "A stranger could
+  'like' my private tasks" beats "I found an IDOR"; name the surprising specific,
+  not its category.
+- **When the tech + outcome IS the interesting thing, say it straight.**
+  "Universal deep links in Flutter with a custom domain" is already both
+  searchable and click-worthy — not every story needs a hook, and a precise
+  capability title is a great title. Never "My deep-link adventure".
+- Fail stories phrase the problem: "Agent can't X after N attempts".
+- The title is editable later (see "Editing a published story") and the URL
+  never changes — so choose a strong one now, but reassure the author it is not
+  locked.
 
 Plain-words rule: the narrative must be understandable by a developer from a
 DIFFERENT stack — jargon belongs in the contract, not the story. When the
@@ -123,7 +145,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-06.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-21.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
