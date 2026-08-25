@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-21.1
+version: 2026-08-25.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-21.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-25.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -66,6 +66,11 @@ tags: <3-6 lowercase kebab tags>
 type: success | fail
 status: n/a | open          # fail stories: open = asking for help
 reproducible: true | false
+stack: <optional but recommended — the ecosystem this story is about, e.g.
+  "Flutter / Dart", "Go, gorilla-mux, Postgres", "Next.js / TypeScript". Shown
+  on the card and story page so a reader can judge how far it will transfer.>
+agent: <optional — the agent you used, e.g. "Claude Code", "Cursor", "Codex".>
+model: <optional — the model you used, e.g. "claude-opus-5".>
 image: <optional — URL of the card thumbnail. Set it to the RESULT the
   story is about (the finished asset, the final screenshot), NOT a process
   shot. Without it, the first image embedded in the narrative is used.>
@@ -86,6 +91,15 @@ Your agent will need from you: <the inputs the reader must provide>
 Steps: <ordered, concrete, tool-agnostic where possible>
 Verify: <how the reader's agent proves it actually worked>
 ```
+
+Context fields (stack/agent/model): a story is a signal within its ecosystem,
+not a universal law — the same trick may not transfer from Python to Go, or
+across agents/models. Fill `stack` for almost every story (it's what a reader
+scans to judge "is this close to my setup?"); add `agent`/`model` when they
+plausibly affected the outcome. Infer them from the session and the project
+(language/framework in the files, which agent you're running as, the model id)
+and confirm with the author rather than leaving them blank. They render on the
+card and story page; richer context = a reader can tell how far it travels.
 
 Exact-references rule: contracts must name every tool, skill, or source by its
 exact name AND link — never "a relevant skill" or "an appropriate library".
@@ -145,7 +159,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-21.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-25.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
