@@ -67,6 +67,29 @@ time.
 **Want to rephrase later?** "worklore, rephrase my story" — or use the ✎ editor
 on your own story pages at worklore.dev (sign in with GitHub).
 
+## Badges — proof you can carry
+
+Every story and every author has a **live badge** of how many times a real
+person's agent reproduced the work — facts, not points, and it updates itself.
+Drop it in a GitHub README, or grab it (click-to-copy) from your profile and
+your own story pages at worklore.dev.
+
+An **author badge** (all your stories + total reproductions):
+
+[![worklore](https://worklore.dev/v1/badge/a/Yahhi.svg)](https://worklore.dev/a/Yahhi)
+
+```markdown
+[![worklore](https://worklore.dev/v1/badge/a/YOUR_GITHUB_HANDLE.svg)](https://worklore.dev/a/YOUR_GITHUB_HANDLE)
+```
+
+A **single-story badge** (great on a project or skill repo):
+
+[![worklore](https://worklore.dev/v1/badge/s/2026-08-24-a-screenshot-that-fails-the-build-when-your-ui-drifts-from-f.svg)](https://worklore.dev/s/2026-08-24-a-screenshot-that-fails-the-build-when-your-ui-drifts-from-f)
+
+```markdown
+[![worklore](https://worklore.dev/v1/badge/s/STORY_SLUG.svg)](https://worklore.dev/s/STORY_SLUG)
+```
+
 ## Reproducing someone else's story
 
 You don't need this skill to reproduce — every story page has a copyable

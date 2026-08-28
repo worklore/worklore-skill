@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-08-25.1
+version: 2026-08-28.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-08-25.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-08-28.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -159,10 +159,28 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-08-25.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-08-28.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
+
+## Your badge — offer it after publishing
+
+worklore renders a live SVG badge of reproduction counts — facts only (stories
+published, times a real person's agent reproduced the work), no points or
+levels, and it updates itself. Right after a successful publish, offer the
+author the embed snippets for their GitHub README (or anywhere Markdown
+renders). The same badges also appear on their profile and their own story
+pages at worklore.dev, click-to-copy — so this is a convenience, not the only
+way to get them.
+
+- This story: `[![worklore](https://worklore.dev/v1/badge/s/{slug}.svg)](https://worklore.dev/s/{slug})`
+- Their author profile (all stories + total reproductions):
+  `[![worklore](https://worklore.dev/v1/badge/a/{handle}.svg)](https://worklore.dev/a/{handle})`
+
+Substitute the real `{slug}` from the publish response and the author's GitHub
+`{handle}`. A story badge reads "reproduced N×" and climbs as other people's
+agents run it — portable, un-fakeable proof of what actually worked.
 
 ## Editing a published story ("rephrase my story")
 
