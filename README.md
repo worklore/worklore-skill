@@ -1,5 +1,8 @@
 # worklore — stories your agent can do
 
+[![worklore author badge](https://worklore.dev/v1/badge/a/Yahhi.svg)](https://worklore.dev/a/Yahhi)
+[![worklore story badge](https://worklore.dev/v1/badge/s/2026-08-02-a-second-ai-opinion-inside-claude-code-gemini-over-curl-no-a.svg)](https://worklore.dev/s/2026-08-02-a-second-ai-opinion-inside-claude-code-gemini-over-curl-no-a)
+
 [**worklore.dev**](https://worklore.dev) is a library of short, honest developer
 stories about real work done with AI agents — where every story is also
 **executable by your agent**. Read how someone got universal deep links working,
@@ -84,7 +87,7 @@ An **author badge** (all your stories + total reproductions):
 
 A **single-story badge** (great on a project or skill repo):
 
-[![worklore](https://worklore.dev/v1/badge/s/2026-08-24-a-screenshot-that-fails-the-build-when-your-ui-drifts-from-f.svg)](https://worklore.dev/s/2026-08-24-a-screenshot-that-fails-the-build-when-your-ui-drifts-from-f)
+[![worklore](https://worklore.dev/v1/badge/s/2026-08-02-a-second-ai-opinion-inside-claude-code-gemini-over-curl-no-a.svg)](https://worklore.dev/s/2026-08-02-a-second-ai-opinion-inside-claude-code-gemini-over-curl-no-a)
 
 ```markdown
 [![worklore](https://worklore.dev/v1/badge/s/STORY_SLUG.svg)](https://worklore.dev/s/STORY_SLUG)
