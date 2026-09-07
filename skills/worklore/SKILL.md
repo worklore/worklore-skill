@@ -163,6 +163,18 @@ they publish; help them be careful.
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
+4. **Submit the whole-package capability tier.** The server can only see the
+   story TEXT; you are the one holding the actual skill/repo/files the story is
+   about. Run skill-xray ([github.com/worklore/skill-xray](https://github.com/worklore/skill-xray),
+   `python3 scan.py <path>`) over that whole package — the story plus everything
+   it tells a reader to fetch or install — and post the tier so the first reader
+   sees the real reach, not just the text:
+   `POST /v1/stories/{slug}/xray` (your author token) with
+   `{"tier":"T2","sha256":"<package hash from scan.py>","scanner_version":"<from scan.py>","target":"package"}`.
+   As the author this sets the baseline; the server keeps its own text-only tier
+   as a floor your claim cannot lower, and reproducers verify it independently.
+   Report the tier you actually observed — under-reporting only gets corrected
+   (and flagged) by the first person who runs it.
 
 ## Your badge — offer it after publishing
 
