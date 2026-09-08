@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-07.1
+version: 2026-09-08.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-07.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-08.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -159,7 +159,7 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-07.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-08.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -170,7 +170,10 @@ they publish; help them be careful.
    it tells a reader to fetch or install — and post the tier so the first reader
    sees the real reach, not just the text:
    `POST /v1/stories/{slug}/xray` (your author token) with
-   `{"tier":"T2","sha256":"<package hash from scan.py>","scanner_version":"<from scan.py>","target":"package"}`.
+   `{"tier":"T2","sha256":"<package hash from scan.py>","scanner_version":"<from scan.py>","target":"package","findings":<the findings array from scan.py, verbatim>}`.
+   Send `findings` too: when the package tier is higher than the text-only
+   floor, those are the reasons that justify it — the badge shows them, so the
+   reader sees WHY it's that tier (not just the number).
    As the author this sets the baseline; the server keeps its own text-only tier
    as a floor your claim cannot lower, and reproducers verify it independently.
    Report the tier you actually observed — under-reporting only gets corrected
@@ -256,8 +259,13 @@ in git. So the honest moment to check is right before you run it, on your machin
    keeps the badge honest and, once independently corroborated, the story's badge
    flips to "⚠ changed since publish":
    `POST /v1/stories/{slug}/xray` with
-   `{"tier":"T3","sha256":"<of what you scanned>","scanner_version":"<from scan.py>","target":"<repo url or 'story'>","note":"what drifted"}`.
-   The response echoes `published_tier`, `drift`, and `guidance`. Do this whether
+   `{"tier":"T3","sha256":"<of what you scanned>","scanner_version":"<from scan.py>","target":"<repo url or 'story'>","findings":<the findings array from scan.py, verbatim>,"note":"what drifted"}`.
+   Always send `sha256` and `findings`: the server compares your `sha256` to the
+   published one (did the content change at all) AND your `findings` to what the
+   reader consented to (a new `elevated`/`opaque` reason at the same tier still
+   stops). A tool integrating its own scanner can add `"source":"<tool name>"`.
+   The response echoes `published_tier`, `hash_changed`, `reasons_changed`,
+   `drift`, and `guidance`. Do this whether
    or not you go on to reproduce — the security signal is separate from the
    result. If the tier matches, a quick confirming report is still useful.
 
