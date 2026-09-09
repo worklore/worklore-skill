@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-08.1
+version: 2026-09-09.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-08.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-09.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -159,21 +159,28 @@ they publish; help them be careful.
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-08.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-09.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
 4. **Submit the whole-package capability tier.** The server can only see the
    story TEXT; you are the one holding the actual skill/repo/files the story is
-   about. Run skill-xray ([github.com/worklore/skill-xray](https://github.com/worklore/skill-xray),
-   `python3 scan.py <path>`) over that whole package — the story plus everything
-   it tells a reader to fetch or install — and post the tier so the first reader
-   sees the real reach, not just the text:
+   about. Run skill-xray ([github.com/worklore/skill-xray](https://github.com/worklore/skill-xray))
+   over that whole package — the story plus everything it tells a reader to fetch
+   or install — and run **both layers**, not just the mechanical one:
+   - the mechanical scanner (`python3 scan.py <path>`) — structural signals
+     (paths, commands, config writes), the tier floor + `sha256`;
+   - the **agent pass** (the `skill-xray` skill itself) — it reads the prose and
+     flags intent the regex cannot: text that tells the agent to read/exfiltrate
+     secrets, install persistence, or disable safety, phrased obliquely or in any
+     language. If the prose implies a T3/T4 action the scanner missed, it raises
+     the tier — submit that raised tier and include those intent findings.
+
    `POST /v1/stories/{slug}/xray` (your author token) with
-   `{"tier":"T2","sha256":"<package hash from scan.py>","scanner_version":"<from scan.py>","target":"package","findings":<the findings array from scan.py, verbatim>}`.
-   Send `findings` too: when the package tier is higher than the text-only
-   floor, those are the reasons that justify it — the badge shows them, so the
-   reader sees WHY it's that tier (not just the number).
+   `{"tier":"T2","sha256":"<package hash from scan.py>","scanner_version":"<from scan.py>","target":"package","findings":<the combined findings — scanner findings PLUS any prose-intent findings from the agent pass>}`.
+   Sending `findings` is what puts the *reasons* in the badge: when the package
+   tier is higher than the text-only floor, those are the reasons that justify
+   it — including intent the server (mechanical-only) can't see on its own.
    As the author this sets the baseline; the server keeps its own text-only tier
    as a floor your claim cannot lower, and reproducers verify it independently.
    Report the tier you actually observed — under-reporting only gets corrected
