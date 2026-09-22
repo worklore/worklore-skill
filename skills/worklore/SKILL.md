@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-09.1
+version: 2026-09-22.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-09.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-22.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -73,7 +73,9 @@ agent: <optional — the agent you used, e.g. "Claude Code", "Cursor", "Codex".>
 model: <optional — the model you used, e.g. "claude-opus-5".>
 image: <optional — URL of the card thumbnail. Set it to the RESULT the
   story is about (the finished asset, the final screenshot), NOT a process
-  shot. Without it, the first image embedded in the narrative is used.>
+  shot. Without it, the first image embedded in the narrative is used.
+  No place to host it? Upload the author's LOCAL photo first (see "Uploading a
+  local image" below) and use the worklore.dev/images/… URL it returns.>
 image_alt: <alt text for that image, required when image is set>
 ---
 
@@ -154,12 +156,33 @@ SANITIZE, always: no employer internals, no client names, no secrets or keys,
 no private URLs. When in doubt, generalize. The user is responsible for what
 they publish; help them be careful.
 
+## Uploading a local image (for authors with no place to host one)
+
+Non-developers often have a photo on their phone but nowhere to host it. worklore
+can store it: POST the raw image bytes to `/v1/images` with the author's Bearer
+token and the right Content-Type, then use the `url` it returns in the story's
+`image:` field (or embedded in the narrative with `![alt](url)`).
+
+- Accepted: PNG, JPEG, WebP · max 5 MB · up to 30 uploads/day per author.
+- worklore strips EXIF/GPS automatically (the photo's location is never stored)
+  and gives the file a random name — no user-controlled paths.
+
+```bash
+curl -s -X POST https://worklore.dev/v1/images \
+  -H "Authorization: Bearer $WORKLORE_TOKEN" \
+  -H "Content-Type: image/jpeg" \
+  --data-binary @photo.jpg
+# -> {"url":"https://worklore.dev/images/<random>.jpg", "metadata_stripped": true}
+```
+
+Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
+
 ## Publishing — ALWAYS with explicit approval
 
 1. Show the user the complete draft. Wait for approval; apply their edits.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-09.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-22.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
