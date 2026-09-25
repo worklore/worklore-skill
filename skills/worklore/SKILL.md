@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-22.1
+version: 2026-09-25.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-22.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-25.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -51,6 +51,18 @@ not a fail story — "stuck after real attempts" is). Let the user pick, then
 draft. Do this proactively whenever the user wants to publish but hesitates
 about the topic.
 
+For each candidate, say in one line what would need SANITIZING (employer
+internals, client names, private URLs) and how far it TRANSFERS — would this
+help someone on a different stack, or only an identical setup? Those are the
+two judgements the human is about to make anyway; a model cannot make them for
+them, but it can lay them out.
+
+When a strong candidate is rejected because it is internal, do NOT drop it:
+offer `visibility: private`. A private story is still written, still carries a
+contract, and the author's own agent can re-run it months later when they no
+longer remember the details. "I can't share this" is the most common reason a
+story never gets written at all — private is the answer to it, not silence.
+
 ## Writing a story ("write this up")
 
 Source material: the current session — what was actually attempted, what
@@ -66,6 +78,11 @@ tags: <3-6 lowercase kebab tags>
 type: success | fail
 status: n/a | open          # fail stories: open = asking for help
 reproducible: true | false
+visibility: public | private   # default public. PRIVATE = only the author can
+  read or reproduce it; it appears in no feed, search, badge, RSS, sitemap or
+  MCP listing. Use it for work that cannot be shared — internal systems, client
+  projects — and for notes-to-self the author wants their future agent to be
+  able to re-run. A private story can be made public later; the URL never changes.
 stack: <optional but recommended — the ecosystem this story is about, e.g.
   "Flutter / Dart", "Go, gorilla-mux, Postgres", "Next.js / TypeScript". Shown
   on the card and story page so a reader can judge how far it will transfer.>
@@ -153,8 +170,10 @@ keep their voice. A story only a specialist can read loses the readers who
 would have become its reproducers.
 
 SANITIZE, always: no employer internals, no client names, no secrets or keys,
-no private URLs. When in doubt, generalize. The user is responsible for what
-they publish; help them be careful.
+no private URLs. When in doubt, generalize — or publish it privately
+(`visibility: private`), which is the honest option when a story is worth
+keeping but cannot be generalized enough to share. The user is responsible for
+what they publish; help them be careful.
 
 ## Uploading a local image (for authors with no place to host one)
 
@@ -180,9 +199,13 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
 ## Publishing — ALWAYS with explicit approval
 
 1. Show the user the complete draft. Wait for approval; apply their edits.
+   Stories publish PUBLIC unless the frontmatter says otherwise. If the draft
+   touches anything the user may not want public, ask which they want BEFORE
+   publishing — never guess. Do not quietly downgrade a story to private, and
+   never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-22.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-25.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
