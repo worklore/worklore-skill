@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-25.1
+version: 2026-09-25.2
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-25.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-25.2` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -205,7 +205,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-25.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-25.2" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -285,6 +285,36 @@ Report your agent/model/version TRUTHFULLY or omit — this voluntary metadata
 is used in aggregate to understand task compatibility across agents, is never
 shown publicly, and must never include machine identifiers or paths. Reports require GitHub auth — if no token,
 run First Use above. "Failed" is a useful report; never inflate.
+
+## Re-running the user's OWN story
+
+Same endpoint, deliberately different meaning. When the reporter is the story's
+author, worklore records an **author re-run** and replies `"counted": false`.
+That is the correct outcome, not an error: do NOT retry it, do not report it as
+a failure, and do not try to make it count. The public number is other people's
+agents only — that is the one claim on a story page the author cannot inflate,
+and it is worth nothing the moment they can.
+
+What a re-run IS worth: it marks the contract as still alive. Stories about
+agent tooling rot in months, and nothing else on the page says which ones still
+work. The story then shows `author re-checked <date> — still works`.
+
+Offer it when:
+
+- the user wants to redo their own past work somewhere new — "take that story
+  and do the same for the other two sites". Fetch their own story, follow its
+  contract, then report the re-run.
+- they are about to rely on an old story of theirs and nobody has run it since.
+- they edited a story and want to confirm the contract still executes.
+
+A re-run that FAILS is the most valuable one — it means the author's own
+instructions have stopped working, and the page will say so. Report it honestly
+with `"result": "failed"` and tell the user what broke; the next step is
+usually a revision, not a retry.
+
+This is also why private stories are worth writing (see `visibility` above): a
+private story is a contract your future agent can re-run when you no longer
+remember the details.
 
 ## Capability check before you run it (skill-xray)
 
