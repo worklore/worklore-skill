@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-09-25.2
+version: 2026-09-30.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-25.2` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-09-30.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -205,7 +205,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-25.2" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-09-30.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -250,12 +250,32 @@ Substitute the real `{slug}` from the publish response and the author's GitHub
 `{handle}`. A story badge reads "reproduced N×" and climbs as other people's
 agents run it — portable, un-fakeable proof of what actually worked.
 
-## Editing a published story ("rephrase my story")
+## Editing a published story ("rephrase my story", "fix my story")
 
-Fetch `https://worklore.dev/s/{slug}.md`, apply the user's rephrasing (keep
-frontmatter; the slug/URL never changes), show a before/after diff, get
-approval, then `PUT /v1/stories/{slug}` with the same auth. The site shows a
-"revised" date — honesty over polish; reproduction counts persist.
+Fetch `https://worklore.dev/s/{slug}.md`, apply the change (keep frontmatter,
+including `date` — it is when the work happened and never moves; the slug/URL
+never changes either), show a before/after diff, get approval, then
+`PUT /v1/stories/{slug}` with the same auth.
+
+Say what KIND of change it is — ask the author if it isn't obvious:
+- `X-Revision-Kind: rephrase` — wording only, nothing a reader would act on
+  differently (the default). Shown quietly as "reworded".
+- `X-Revision-Kind: addition` — new steps, caveats or context. Shown as
+  "updated <date>".
+- `X-Revision-Kind: correction` — something in the story was WRONG. Requires
+  `X-Revision-Note` (one line: what was wrong). Shown prominently as
+  "corrected <date>", and everyone who reported a reproduction is notified,
+  because they ran the old steps.
+- `X-Revision-Note: <one line, URL-encoded>` — what changed and why.
+- `X-Revision-Source: <https URL>` — optional credit for what prompted it (a
+  reader's article, a comment, an issue). Credit people; it is also the most
+  natural reason to thank them.
+
+After a correction or addition the story page says "not re-checked by the
+author since" until the author re-runs the story (see "Re-running the user's
+OWN story") — offer that re-run once the edit is live. Reproduction counts
+persist across revisions. Honesty over polish: a visible correction is a trust
+signal, never something to hide inside a "rephrase".
 
 ## Hiding a story ("hide my story", "withdraw my story")
 
