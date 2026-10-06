@@ -1,7 +1,7 @@
 ---
 name: worklore
-version: 2026-09-30.1
-description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), and reporting story reproductions.
+version: 2026-10-06.1
+description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result.
 ---
 
 # Worklore — stories your agent can do
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-09-30.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-10-06.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -104,12 +104,28 @@ one image: ![caption](https://...) on its own line. If the narrative embeds
 process images (attempts, before-shots), set frontmatter `image:` to the
 final result so the feed card shows the outcome, not the first try.>
 
+## Check if this applies to you   # OPTIONAL — only when the problem can be detected
+Applies if: <the preconditions — the stack/component a project must have for this
+  check to mean anything>
+<read-only steps: commands that only READ (requests, greps, list calls) — never
+  ones that change files, config, data or remote state>
+Has the problem: <the observable result that means "you have it">
+Doesn't have it: <the observable result that means "you don't">
+
 ## Reproduce this        # success stories
 Prerequisites: <what must exist before starting>
 Your agent will need from you: <the inputs the reader must provide>
 Steps: <ordered, concrete, tool-agnostic where possible>
 Verify: <how the reader's agent proves it actually worked>
 ```
+
+The check section is optional. Offer it when the story fixes a problem a reader
+could have without knowing it (a misconfiguration, a silent bug, a missing
+header) and there is a read-only way to tell. It gives the story page a "check
+mine" button and a public counter ("checked N times: X had it, Y didn't"), which
+tells the next reader how common the problem is. Keep it strictly read-only and
+state the preconditions, so an agent can tell "doesn't apply here" apart from
+"doesn't have it". Leave it out when there is no honest read-only test.
 
 Context fields (stack/agent/model): a story is a signal within its ecosystem,
 not a universal law — the same trick may not transfer from Python to Go, or
@@ -205,7 +221,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-09-30.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-10-06.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -305,6 +321,46 @@ Report your agent/model/version TRUTHFULLY or omit — this voluntary metadata
 is used in aggregate to understand task compatibility across agents, is never
 shown publicly, and must never include machine identifiers or paths. Reports require GitHub auth — if no token,
 run First Use above. "Failed" is a useful report; never inflate.
+
+## Checking whether a story applies ("check mine")
+
+Some stories have a `## Check if this applies to you` section: a READ-ONLY test
+for whether the user's project has the problem the story fixes. The story page's
+"check mine" button copies a prompt that asks for this, and `GET
+/v1/stories/{slug}` says `"has_check": true` for those stories. When the user
+wants to know whether a story applies to them — not to apply it:
+
+1. Fetch the `.md` and read ONLY that section with the user.
+2. **Decide applicability first.** Compare the section's preconditions ("Applies
+   if: …") with the user's project. If they do not match — different stack, no
+   such component — tell the user it does not apply and STOP. **Record nothing.**
+3. Run only the check's read-only steps. Change nothing: no edits, no installs,
+   no writes to any service, and do not apply the story's fix. If a step would
+   write anything, skip it and say so.
+4. Tell the user the result with the evidence: has the problem, or doesn't.
+5. Record it, only if step 2 said it applies:
+   `POST /v1/stories/{slug}/checked` with the auth header and body
+   `{"result":"has_problem|no_problem", "note":"<short evidence, optional>",
+   "agent":{...}, "env":{...}}` (same optional, never-public metadata as a
+   reproduction report). Over MCP, the `report_check` tool does the same.
+
+Rules the server enforces and you must not work around:
+- **Never record "not applicable".** There is no such result; sending it is a
+  400. Not applying is the skip in step 2. The counter only means something if
+  it counts people the check could apply to.
+- One counted result per person per story, and the latest wins: if the user
+  fixes the problem and checks again, report again (`no_problem`) and their
+  earlier result is replaced.
+- The author's own check is recorded apart (`"counted": false`) — correct, not
+  an error. The demo/review account is acknowledged and never counted.
+- Private stories: only their author can check them; to everyone else they do
+  not exist (404).
+- A story without the section answers 409 — there is nothing to check; offer to
+  reproduce it instead.
+
+A check is not a reproduction: never report `/reproduced` for a check, and never
+turn a `has_problem` into "let me fix it" without the user's go-ahead — the
+fix is the story's "Reproduce this", a separate decision.
 
 ## Re-running the user's OWN story
 
