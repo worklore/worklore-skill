@@ -331,7 +331,7 @@ curl -s -X POST https://worklore.dev/v1/drafts \
   -d '{"markdown": "<the full story markdown>",
        "invitee_note": "who it is for and where the material comes from (only the drafter sees it)",
        "invitee_handle": "<their GitHub or worklore handle — optional>"}'
-# -> {"id", "claim_url": "https://worklore.dev/claim/<token>", "expires_at", "assigned_to", ...}
+# -> {"id", "claim_url": "https://worklore.dev/claim#<token>", "expires_at", "assigned_to", ...}
 ```
 
 - `claim_url` is returned **once** — worklore stores only a hash of it. Give it
