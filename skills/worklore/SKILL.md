@@ -1,7 +1,7 @@
 ---
 name: worklore
-version: 2026-10-06.1
-description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result.
+version: 2026-10-06.2
+description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result, and drafting a story FOR someone else (with their explicit yes) that they claim and publish as their own.
 ---
 
 # Worklore — stories your agent can do
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-10-06.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-10-06.2` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -221,7 +221,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-10-06.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-10-06.2" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -302,6 +302,53 @@ author"), the raw .md returns 410, and it leaves the feed — links never rot,
 nothing is quietly deleted. `{"hidden": false}` restores it fully. Confirm
 with the user before hiding; suggest a revision as the alternative when the
 story is fixable.
+
+## Drafting a story for someone else ("write this up for them")
+
+Sometimes the best story is someone else's: a colleague's fix, a teammate's
+workaround, a stranger's blog post that deserves to be runnable. You may draft
+it FOR them — they publish it, as their own story, under their own name. Rules:
+
+- **Only with the person's explicit yes.** Ask them first (the user asks, or
+  you help the user write the ask). No yes, no draft. A draft is never a way to
+  publish about someone without them.
+- **Draft from their own public material** — their post, repo, talk, issue
+  thread — and say where it came from. Write it **in their voice**, first
+  person, honest: what they did, what failed, what worked, with the
+  "Reproduce this" contract. Do not invent details they did not write.
+- **The drafter is credited.** worklore adds the drafter's GitHub handle to
+  `credits:` automatically; the person may remove it when they publish, and
+  that is respected.
+- Same format and the same checks as a normal story (frontmatter with `title`
+  and `date`, the safety lint, sanitizing). Show the user the full draft first.
+
+Create it (needs the user's `$WORKLORE_TOKEN`):
+
+```bash
+curl -s -X POST https://worklore.dev/v1/drafts \
+  -H "Authorization: Bearer $WORKLORE_TOKEN" -H "Content-Type: application/json" \
+  -H "X-Worklore-Skill: 2026-10-06.2" \
+  -d '{"markdown": "<the full story markdown>",
+       "invitee_note": "who it is for and where the material comes from (only the drafter sees it)",
+       "invitee_handle": "<their GitHub or worklore handle — optional>"}'
+# -> {"id", "claim_url": "https://worklore.dev/claim/<token>", "expires_at", "assigned_to", ...}
+```
+
+- `claim_url` is returned **once** — worklore stores only a hash of it. Give it
+  to the user right away and tell them to **send it to the person themselves**
+  (you do not message anyone). It opens only after the person signs in with
+  their own GitHub or Google; nobody gets an account they did not create. It
+  expires in 30 days.
+- `invitee_handle` locks the draft to that person. If they **already have a
+  worklore account**, the draft lands straight in their Drafts
+  (worklore.dev/drafts) with a notification (`assigned_to` names them); the
+  link opens the same draft, only for them.
+- They can edit it, choose public or private, publish it as their story, or
+  say no thanks (the text is deleted). The user hears about either outcome in
+  their worklore notifications.
+- `GET /v1/drafts` lists the user's drafts with their status (open, claimed,
+  published, declined, withdrawn, expired). `DELETE /v1/drafts/{id}` withdraws
+  one before it is published. Drafts have no MCP tool — use the REST API.
 
 ## Reproducing someone's story
 
