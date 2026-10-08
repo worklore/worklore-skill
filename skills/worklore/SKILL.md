@@ -94,6 +94,9 @@ image: <optional — URL of the card thumbnail. Set it to the RESULT the
   No place to host it? Upload the author's LOCAL photo first (see "Uploading a
   local image" below) and use the worklore.dev/images/… URL it returns.>
 image_alt: <alt text for that image, required when image is set>
+canonical_url: optional — when this story was first published elsewhere (your
+  blog, dev.to), the URL of that original; the worklore page then points
+  search engines to it.
 ---
 
 # <same title>
