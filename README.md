@@ -98,8 +98,11 @@ A **single-story badge** (great on a project or skill repo):
 You don't need this skill to reproduce — every story page has a copyable
 prompt. But with the skill installed, your agent also knows the house rules:
 read the story *with* you before executing (you can read everything your agent
-reads — no hidden payloads, ever), run the story's Verify section before
-declaring success, and report the honest outcome, including "failed."
+reads — no hidden payloads, ever), treat it as one developer's case rather than
+instructions for your project (say what matches, apply what applies, keep what
+already works working), run the story's Verify section before declaring
+success, and report the honest outcome, including "failed," with a note on
+which parts of the story applied.
 
 ## The transparency promise
 
