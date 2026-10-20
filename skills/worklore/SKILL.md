@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-10-20.1
+version: 2026-10-20.2
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result, and drafting a story FOR someone else (with their explicit yes) that they claim and publish as their own.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-10-20.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-10-20.2` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -163,10 +163,12 @@ what turned fails into passes:
 - **No absolute sentences you don't mean.** Agents follow a story more
   literally than people. "Never guessed by a server" broke a working API in 3
   of 4 runs. If something must keep working, say so in the steps.
-- **Name a tool together with what it can't see.** A story that points at a
-  scanner, linter or generator hands over its blind spots too; one agent in
-  four repeated a scanner's verdict over its own reading of a five-line
-  script. Next to the tool, say what it misses.
+- **Name a tool, and say where your line is.** A story that points at a
+  scanner, linter or generator hands over its blind spots (say what it misses)
+  and its scale. An agent told by a tier to look harder may land stricter than
+  you: in the eval, a true "destructive" tier on a script that deletes its own
+  build folder turned one agent's "safe" into "not safe". If a kind of risk is
+  acceptable in your setup, say so, or the reader's agent decides for you.
 - **Verify checks substance, not shape.** A Verify that checked only the
   layout let a thin result pass and failed the best one. Verify behaviour: the
   request that must now succeed, the value that must now be present, the
@@ -256,7 +258,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-10-20.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-10-20.2" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -362,7 +364,7 @@ Create it (needs the user's `$WORKLORE_TOKEN`):
 ```bash
 curl -s -X POST https://worklore.dev/v1/drafts \
   -H "Authorization: Bearer $WORKLORE_TOKEN" -H "Content-Type: application/json" \
-  -H "X-Worklore-Skill: 2026-10-20.1" \
+  -H "X-Worklore-Skill: 2026-10-20.2" \
   -d '{"markdown": "<the full story markdown>",
        "invitee_note": "who it is for and where the material comes from (only the drafter sees it)",
        "invitee_handle": "<their GitHub or worklore handle — optional>"}'
