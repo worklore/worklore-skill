@@ -1,6 +1,6 @@
 ---
 name: worklore
-version: 2026-10-20.2
+version: 2026-10-21.1
 description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result, and drafting a story FOR someone else (with their explicit yes) that they claim and publish as their own.
 ---
 
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-10-20.2` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-10-21.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -147,7 +147,7 @@ source used, (c) the fallback when it's unavailable. A contract the reader's
 agent cannot act on without guessing is not a contract.
 
 What makes a story work for an agent (measured, not guessed): worklore ran its
-own stories through nine agents with and without the story, 271 runs graded by
+own stories through nine agents with and without the story, 438 runs graded by
 hidden scripts against each story's Verify
 (github.com/worklore/worklore-mcp/tree/main/research/guide-eval). Draft toward
 what turned fails into passes:
@@ -157,7 +157,7 @@ what turned fails into passes:
   key in a plist), a method it skips on its own (test through the client, not
   against your own code). Those went from 2 to 5 passes in 9 runs without the
   story to 15 to 17 in 18 with it. A story that retells the official docs
-  scored the same as no story in 18 of 18 runs: if the docs say it, the agent
+  scored the same as no story in 32 of 32 runs: if the docs say it, the agent
   has it. Put the undocumented part in the narrative in one plain sentence, so
   the reader's agent can see what it is getting.
 - **No absolute sentences you don't mean.** Agents follow a story more
@@ -173,12 +173,14 @@ what turned fails into passes:
   layout let a thin result pass and failed the best one. Verify behaviour: the
   request that must now succeed, the value that must now be present, the
   output that must change.
-- **Test the story before publishing.** Offer it as the last step: run the
-  agent once with the draft and once without, on a fresh copy of the project,
-  and check both against Verify. It shows which paragraphs do nothing, which
-  hurt, and which went stale. If the run without the story passes too, the
-  story carries nothing yet: find the undocumented part, or keep it as a
-  private note-to-self.
+- **If the story is meant to change what an agent does, you can measure
+  that.** Optional, and only for that kind of story: run the agent once with
+  the draft and once without, and check both against Verify. It shows which
+  paragraphs do nothing, which hurt, and which went stale. If the run without
+  the story passes too, the story is not an agent instruction. It may still be
+  a good story: an idea, a trap to know about, a method worth naming. Publish
+  it for the reader, and don't expect the agent's output to change. Never
+  make this test a condition for publishing.
 
 ```markdown
 
@@ -258,7 +260,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-10-20.2" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-10-21.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -364,7 +366,7 @@ Create it (needs the user's `$WORKLORE_TOKEN`):
 ```bash
 curl -s -X POST https://worklore.dev/v1/drafts \
   -H "Authorization: Bearer $WORKLORE_TOKEN" -H "Content-Type: application/json" \
-  -H "X-Worklore-Skill: 2026-10-20.2" \
+  -H "X-Worklore-Skill: 2026-10-21.1" \
   -d '{"markdown": "<the full story markdown>",
        "invitee_note": "who it is for and where the material comes from (only the drafter sees it)",
        "invitee_handle": "<their GitHub or worklore handle — optional>"}'
