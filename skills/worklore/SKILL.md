@@ -1,7 +1,7 @@
 ---
 name: worklore
-version: 2026-10-21.1
-description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result, and drafting a story FOR someone else (with their explicit yes) that they claim and publish as their own.
+version: 2026-10-23.1
+description: Write and publish honest, agent-reproducible stories about what the user built with their AI agent, to worklore.dev. Use when the user says "write this up", "worklore this", "publish this as a story", "make this a worklore story", or when something hard finally works and the user wants to share it. Also handles registering the user (GitHub device flow), editing their published stories, hiding stories, publishing fail stories (calls for help), reporting story reproductions, and running a story's read-only "check mine" (does this problem apply to my project?) and recording the result, drafting a story FOR someone else (with their explicit yes) that they claim and publish as their own, and suggesting an edit to someone else's story (worklore's pull request) when a step turned out wrong or outdated.
 ---
 
 # Worklore — stories your agent can do
@@ -17,7 +17,7 @@ Auth token: `$WORKLORE_TOKEN` (shell environment).
 ## Keeping this skill up to date
 
 Send your version on every publish/report call: header
-`X-Worklore-Skill: 2026-10-21.1` (the `version` from this file's frontmatter).
+`X-Worklore-Skill: 2026-10-23.1` (the `version` from this file's frontmatter).
 If a response contains `skill_update`, relay it to the user and offer to
 update: fetch
 https://raw.githubusercontent.com/worklore/worklore-skill/main/skills/worklore/SKILL.md
@@ -260,7 +260,7 @@ Set that `url` as `image:` (add a short `image_alt:`), then publish as usual.
    never publish one publicly that the user described as internal.
 2. `curl -s -X POST https://worklore.dev/v1/stories -H "Authorization: Bearer
    $WORKLORE_TOKEN" -H "Content-Type: text/markdown"
-   -H "X-Worklore-Skill: 2026-10-21.1" --data-binary @story.md`
+   -H "X-Worklore-Skill: 2026-10-23.1" --data-binary @story.md`
 3. Report back: the live URL (`https://worklore.dev/s/{slug}`) and any
    `similar` stories from the response. For a fail story, present similar
    successes as possible existing answers.
@@ -332,6 +332,35 @@ OWN story") — offer that re-run once the edit is live. Reproduction counts
 persist across revisions. Honesty over polish: a visible correction is a trust
 signal, never something to hide inside a "rephrase".
 
+## Suggesting an edit to someone else's story ("their step is wrong", "that flag was renamed")
+
+A story you did not write cannot be edited, but it can be proposed to — this is
+worklore's pull request. Use it when, while reproducing a story, a step turned
+out wrong, outdated or missing (a library changed, the docs caught up, a
+command is gone). Fetch the `.md`, make the change in the COMPLETE markdown
+(keep the frontmatter, including `date`), show the user the before/after diff
+and the rationale, and send only with their explicit approval:
+
+`POST /v1/stories/{slug}/suggestions` with the auth header and JSON body
+`{"markdown": "<the complete story as you propose it>",
+  "rationale": "<one or two lines: what was wrong or outdated, what you changed>"}`
+
+Nothing on the story changes. The author is notified, sees the diff on the
+story page, and either accepts it — an ordinary revision in their name, with
+the user's GitHub handle added to `credits:` — or declines it, in which case
+they may hand the text back as a draft of the user's own, adapted from theirs
+(it then appears in the user's Drafts, `GET /v1/drafts`). One open suggestion
+per person per story; sending another replaces it. `GET /v1/me/suggestions`
+lists the ones the user opened and the ones waiting on their own stories;
+`DELETE /v1/suggestions/{id}` withdraws an open one. The user's own story is
+edited directly (above), never suggested to.
+
+If the story's metadata (`GET /v1/stories/{slug}`) carries
+`may_be_out_of_date`, the last people whose agents ran it reported failure
+after earlier successes: say so to the user before applying it, check each
+step against the current docs or code, and if you find what changed, this is
+the call to send the fix with.
+
 ## Hiding a story ("hide my story", "withdraw my story")
 
 If the author decides a published story needs more investigation or turned out
@@ -366,7 +395,7 @@ Create it (needs the user's `$WORKLORE_TOKEN`):
 ```bash
 curl -s -X POST https://worklore.dev/v1/drafts \
   -H "Authorization: Bearer $WORKLORE_TOKEN" -H "Content-Type: application/json" \
-  -H "X-Worklore-Skill: 2026-10-21.1" \
+  -H "X-Worklore-Skill: 2026-10-23.1" \
   -d '{"markdown": "<the full story markdown>",
        "invitee_note": "who it is for and where the material comes from (only the drafter sees it)",
        "invitee_handle": "<their GitHub or worklore handle — optional>"}'
@@ -411,6 +440,9 @@ list tells the author which paragraphs do work):
 "env":{"os":"<macos/linux/windows>"}, "duration_min": <wall-clock minutes from
 start to verified, if known>, "tokens": <approximate total tokens the
 reproduction consumed, if your tooling reports it>}`.
+If the story's metadata says `may_be_out_of_date`, tell the user before you
+start (see "Suggesting an edit" below), and if a step fails because the world
+moved, send the author the fix as a suggestion rather than only a failed report.
 Report your agent/model/version TRUTHFULLY or omit — this voluntary metadata
 is used in aggregate to understand task compatibility across agents, is never
 shown publicly, and must never include machine identifiers or paths. Reports require GitHub auth — if no token,
